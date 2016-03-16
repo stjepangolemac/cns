@@ -1,0 +1,35 @@
+=======================
+pass: ****
+=======================
+NAPOMENA: Nuzno pokrenuti aplikacija s admin ovlastima!!!
+
+1. Instalacija Node.js (Mature and Dependable version)
+	- Test node and npm
+	
+2. Instalacija Visual Studio Code
+	- Kreiraj svoj direktorij pod 'Users' (npr. C:/Users/mario)
+	- Open folder C:/Users/mario	
+	- Kreiraj "Hello world!"
+	
+3. Instalacija 'nodemon'
+	- npm install -g nodemon
+	- Test: modificiraj "Hello world!"
+		
+4. Instalacija Electron frameworka
+	- Instaliraj Git klijent
+	- Instaliraj i pokreni Electron
+	- Test: modificiraj prozor u Electronu
+	
+	a) kreirajte na Desktopu neki folder
+	b) raspakirajte CNS-electron-quick-start.rar u taj folder
+	c) udjite u taj folder i selektirajte sve fajlove / foldere
+	d) CTRL + C 
+	e) paste u C:\Users\mario\electron-quick-start - Replace ALL ALL ALL 
+	
+5. Instaliraj i pokreni Chat@FESB
+	- Instalirati 'jquery'
+	- Instalirati 'debug' modul (lokalno)
+	- Instalirati 'handlebars' modul (lokalno)
+    - NAPOMENA: var HOST='0.0.0.0', iskljuciti firewall!!!	
+
+6. Sve pokretati iz foldera gdje je instalirana aplikacija i to kao ADMIN! 	
