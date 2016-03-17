@@ -1,6 +1,9 @@
 'use strict'
 
+// Caesar's algorithm
+// --------------------------------------
 // Control logging with this flag.
+
 var flag = false;
 
 function seed (key) {
