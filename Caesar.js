@@ -10,7 +10,7 @@ function seed(key) {
 }
 
 function encrypt(plaintext, key) {
-    if (flag) console.log("encryption started!");
+    if (flag) console.log("encryption started!, plaintext is: ", plaintext);
     var c,
         ciphertext = "";
     var seedling = seed(key);
@@ -42,7 +42,7 @@ function encrypt(plaintext, key) {
 };
 
 function decrypt(ciphertext, key) {
-    if (flag) console.log("decryption started!");
+    if (flag) console.log("decryption started!, ciphertext is: ", ciphertext);
     var c,
         plaintext = "";
     var seedling = seed(key);
