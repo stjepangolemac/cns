@@ -1,7 +1,9 @@
+'use strict'
+
 // Control logging with this flag.
 var flag = false;
 
-function seed(key) {
+function seed (key) {
     var seed = 0;
     for (var i = 0; i < key.length; i++) {
         seed += key[i].charCodeAt(0);
@@ -9,7 +11,7 @@ function seed(key) {
     return seed;
 }
 
-function encrypt(plaintext, key) {
+function encrypt (plaintext, key) {
     if (flag) console.log("encryption started!, plaintext is: ", plaintext);
     var c,
         ciphertext = "";
@@ -41,7 +43,7 @@ function encrypt(plaintext, key) {
     return ciphertext;
 };
 
-function decrypt(ciphertext, key) {
+function decrypt (ciphertext, key) {
     if (flag) console.log("decryption started!, ciphertext is: ", ciphertext);
     var c,
         plaintext = "";
@@ -73,5 +75,4 @@ function decrypt(ciphertext, key) {
     return plaintext;
 };
 
-module.exports = {encrypt: encrypt};
-module.exports = {decrypt: decrypt};
+module.exports = {encrypt, decrypt};
