@@ -137,7 +137,7 @@ function getNames(receiver) {
 	};
 
 	for (var i = 0, len = CLIENTS.length; i < len; i++) {
-		if (typeof CLIENTS[i].clientID !== 'undefined' && CLIENTS[i] !== receiver) {
+		if (typeof CLIENTS[i].clientID !== 'undefined') {
 			_clients.clients.push({
 				username: CLIENTS[i].username,
 				clientID: CLIENTS[i].clientID

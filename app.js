@@ -3,10 +3,11 @@
 var $ = require('jquery');
 var net = require('net');
 var Handlebars = require('handlebars');
-// Import our own moduels.
+// Import our own modules.
 var Bind = require('./binder');
 var Utils = require('./utils'),
     utils = new Utils({usernameLength: 8});
+var Caesar = require('./Caesar');
 
 var Clients = require('./controllers/clientCredentials.js'),
     clients; // A reference to a new clients object    
@@ -106,6 +107,8 @@ $(document).ready(function() {
                              */                            
                             if (_msg.clientID && _msg.username && _msg.timestamp && _msg.content) {
                                 _msg.direction = 'incoming';
+
+                                _msg.content = Caesar.decrypt(_msg.content, clients.getSecretOf(_msg.clientID));
                                 addMsg(msgTmplCompiled, contentBox, _msg);
                                 
                                 console.log(_msg.clientID, "secret:", clients.getSecretOf(_msg.clientID));
@@ -154,8 +157,9 @@ $(document).ready(function() {
 				_msg = {clientID: clientID,
                         username: username,
 						timestamp: date.getHours() + ":" + ('0' + date.getMinutes()).slice(-2),
-						content: _msg};
-                        
+						content: Caesar.encrypt(_msg, clients.getSecretOf(clientID))};
+                        //content: _msg};
+
 				clientSocket.write( JSON.stringify(_msg), function() {
                     addMsg(msgTmplCompiled, contentBox, _msg);
                 });
@@ -192,8 +196,10 @@ function addMsg(template, container, msg) {
         default:
             msg.text_align ='right';
             break;
-    }            
-    
+    }
+
+    //msg.content = Caesar.decrypt(msg.content, clients.getSecretOf(msg.clientID));
+
 	container.append($(template(msg)));
 	container.animate({ scrollTop: container[0].scrollHeight }, 'slow');
 }
