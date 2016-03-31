@@ -1,6 +1,7 @@
 var Handlebars = require('handlebars');
 var $ = require('jquery');
 var Bind = require('../binder');
+var crypto = require('crypto');
 
 /* Readin and compile Handlebar msg template/s. */
 var source,
@@ -9,6 +10,7 @@ var source,
     container,
     clients = {},
     clientsSecrets = {},
+    clientsKeys = {},
     table;
     
 try {
@@ -46,6 +48,7 @@ Clients.prototype.removeClient = function(client) {
     $("." + client.clientID).remove();
     console.log("Before: ", clientsSecrets);    
     delete clientsSecrets[client.clientID];
+    delete clientsKeys[client.clientID];
     console.log("After: ", clientsSecrets);
     if ( $.isEmptyObject(clientsSecrets) ) table.hide();
 }
@@ -55,12 +58,22 @@ Clients.prototype.getSecretOf = function(clientID) {
     return clientsSecrets[clientID];
 }
 
+Clients.prototype.getKeyOf = function(clientID) {
+    console.log(clientsKeys);
+    if(clientsKeys[clientID] == null || clientsKeys[clientID] == undefined) return undefined;
+    return clientsKeys[clientID];
+}
+
 function initClientsView() {
     container.append($( template(clients) ));
     table = $('#clients_table');
     table.keypress(function (event) {
     if (event.keyCode == 13) {
           $('#clients_table td').blur(); // try to find better solution
+          crypto.pbkdf2(clientsSecrets[event.target.id], event.target.id , 60000, 16, 'sha256', function(err, key) {
+                if (err) throw err;
+                clientsKeys[event.target.id] = key; 
+            });
           return false;
     }
 

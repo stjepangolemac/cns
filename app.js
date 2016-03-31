@@ -7,7 +7,8 @@ var Handlebars = require('handlebars');
 var Bind = require('./binder');
 var Utils = require('./utils'),
     utils = new Utils({usernameLength: 8});
-var Caesar = require('./Caesar');
+//var Caesar = require('./algorithms/caesar');
+var AES = require('./algorithms/aes');
 
 var Clients = require('./controllers/clientCredentials.js'),
     clients; // A reference to a new clients object    
@@ -107,8 +108,17 @@ $(document).ready(function() {
                              */                            
                             if (_msg.clientID && _msg.username && _msg.timestamp && _msg.content) {
                                 _msg.direction = 'incoming';
+                                console.dir(Buffer.isBuffer(_msg.content));
+                                if(_msg.isEncrypted == true) {
+                                    if(clients.getKeyOf(_msg.clientID) == undefined) _msg.content = 'Unreadable data'
+                                    else {
+                                        var buff = new Buffer(_msg.content);
+                                        var buff2 = AES.unpack(buff);
+                                        _msg.content = AES.decrypt(clients.getKeyOf(_msg.clientID), '', buff2).toString('utf8');
+                                    }
+                                }
 
-                                _msg.content = Caesar.decrypt(_msg.content, clients.getSecretOf(_msg.clientID));
+                                //_msg.content = Caesar.decrypt(_msg.content, clients.getSecretOf(_msg.clientID));
                                 addMsg(msgTmplCompiled, contentBox, _msg);
                                 
                                 console.log(_msg.clientID, "secret:", clients.getSecretOf(_msg.clientID));
@@ -152,15 +162,33 @@ $(document).ready(function() {
 
 	if (sendBtn.length && contentBox.length ) { /* Check if DOM elements actually exist. */
 		sendBtn.on("click", function(){
-			var _msg = $.trim(inputBox.text());
+            var _msg = $.trim(inputBox.text());
 			if ( _msg != '' ) {
+            var content = null;
+            var isEncrypted = false;
+            if(clients.getKeyOf(clientID) == undefined) content = _msg;
+            else {
+                //content = AES.pack('', AES.encrypt(clients.getKeyOf(clientID), '', _msg));
+                content = AES.encrypt(clients.getKeyOf(clientID), '', _msg);
+                isEncrypted = true;
+            }
+
 				_msg = {clientID: clientID,
                         username: username,
 						timestamp: date.getHours() + ":" + ('0' + date.getMinutes()).slice(-2),
-						content: Caesar.encrypt(_msg, clients.getSecretOf(clientID))};
+                        isEncrypted: isEncrypted,
+                        content: content};
+						//content: Caesar.encrypt(_msg, clients.getSecretOf(clientID))};
                         //content: _msg};
 
 				clientSocket.write( JSON.stringify(_msg), function() {
+                    if(_msg.isEncrypted == true) {
+                        if(clients.getKeyOf(_msg.clientID) == undefined) _msg.content = 'Unreadable data'
+                        else {
+                            _msg.content = AES.unpack(_msg.content);
+                            _msg.content = AES.decrypt(clients.getKeyOf(_msg.clientID), '', _msg.content);
+                        }
+                    }
                     addMsg(msgTmplCompiled, contentBox, _msg);
                 });
 			}
@@ -190,7 +218,7 @@ function addMsg(template, container, msg) {
     switch (msg.direction) {
         case 'incoming':
             msg.text_align ='left';
-            msg.msg_cloud = (msg.username === 'SERVER@FESB') ? 'in-msg-srv-cloud' : 'in-msg-cloud';          
+            msg.msg_cloud = (msg.username === 'SERVER@FESB') ? 'in-msg-srv-cloud' : 'in-msg-cloud';
             break;
     
         default:
