@@ -5,5 +5,5 @@ Chat application written in JS that uses NodeJS and Electron framework. The assi
 ##### Todo:
 1. ~~Implement Caesar's encryption~~, done
 2. ~~Implement AES_ECB encryption~~,  done
-3. Implement AES_CBC encryption
+3. ~~Implement AES_CBC encryption~~, done
 4. Implement data interception and block swapping
