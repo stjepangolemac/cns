@@ -1,6 +1,6 @@
 # Cryptography and network security, FESB 2016
 
-Chat application written in JS that uses NodeJS and Electron framework. The assignment is to implement different types of encryption in the communication and then to test it by intercepting and manipulating received data.
+This is a chat application written in JS that uses NodeJS and Electron framework. The assignment is to implement different types of encryption in the communication and then to test it by intercepting and manipulating received data.
 
 ##### Todo:
 1. ~~Implement Caesar's encryption~~, done
