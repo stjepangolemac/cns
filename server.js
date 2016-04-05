@@ -95,6 +95,14 @@ server.on('connection', function(socket) {
 function broadcast(sender, msg) {
 	debug('BROADCAST: ' + msg);
 
+	var _msg = JSON.parse(msg);
+	if(_msg.isEncrypted) {
+		var buff = new Buffer(_msg.content);
+		_msg.content = mixBuffer(buff, 'one', 'cbc');
+
+		msg = JSON.stringify(_msg);
+	}
+
 	for (var i = 0, len = CLIENTS.length; i < len; i++) {
 		if (typeof CLIENTS[i].clientID !== 'undefined' && CLIENTS[i] !== sender) {
 			debug('SENDING: ' + sender.remotePort + '(' + sender.clientID + ') --> ' + CLIENTS[i].remotePort + '(' + CLIENTS[i].clientID + ')');
@@ -145,4 +153,45 @@ function getNames(receiver) {
 		}
 	}
 	return _clients;
+}
+
+function mixBuffer(buff, mixwhat, aesmode) {
+	console.log('Buff is:\t', buff);
+	var buff2;
+	var blocks = buff.length/16;
+
+	if(mixwhat == 'all') {
+		do { // Here the buffer is being mixed
+			var tempbuff = buff;
+			buff2 = new Buffer('');
+
+			for (var i = 0; i <= blocks-1; i++) {
+				var block = getRandomInt(0,blocks-1);
+				if(aesmode == 'cbc' && i == 0) {
+					buff2 = Buffer.concat([buff2, tempbuff.slice(0,16)]);
+					i++;
+				}
+				buff2 = Buffer.concat([buff2, tempbuff.slice(block*16, block*16+16)]);
+			}
+		} while(buff.compare(buff2) == 0); // If the mixed buffer is the same as initial, mix again
+	} else if(mixwhat == 'one') {
+		do {
+			var tempbuff = buff;
+			buff2 = new Buffer('');
+			var ifcbc = 0;
+			if(aesmode == 'cbc') ifcbc = 1;
+			var blockToSwap = getRandomInt(ifcbc,blocks-1);
+			var swapBlock = getRandomInt(0,blocks-1);
+
+			buff2 = Buffer.concat([buff.slice(0, blockToSwap*16), buff.slice(swapBlock*16, swapBlock*16+16), buff.slice(blockToSwap*16+16, buff.length)]);
+		} while(buff.compare(buff2) == 0);
+	}
+	console.log('Mixed buff is:\t', buff2);
+	console.log('Are they ==?', buff.compare(buff2));
+
+	return buff2;
+}
+
+function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
