@@ -7,17 +7,16 @@ var crypto = require('crypto');
 
 // Control logging with this flag
 var logging = false;
+// For now, there was no need for logging
 
 // Choose mode here
-const algorithm = 'aes-128-ecb';
-//const algorithm = 'aes-128-cbc';
+//const algorithm = 'aes-128-ecb';
+const algorithm = 'aes-128-cbc';
 
-//function getKey (password, salt, callback) {
-//	crypto.pbkdf2(password, salt, 60000, 16, 'sha256', function(err, key) {
-//        if (err) throw err;
-//        callback(key);
-//    });
-//}
+function getKey (password, salt) {
+	var key = crypto.pbkdf2Sync(password, salt, 60000, 16, 'sha256');
+	return key;
+}
 
 function getIV () {
 	var iv = crypto.randomBytes(16);
@@ -49,22 +48,24 @@ function pack (iv, ciphertext) {
 function unpack (item) {
 	var ivlength = 16;
 	if(algorithm == 'aes-128-ecb') ivlength = 0;
-	var ciphertext = item.slice(ivlength, item.length);
-	return ciphertext;
+	var IVandCipher = [item.slice(0, ivlength), item.slice(ivlength, item.length)];
+	return IVandCipher;
 }
 
 module.exports = {encrypt, decrypt, pack, unpack, getIV};
 
-//getKey('tralala', '13371337', function(key) {
-//	console.log(key.toString('utf8'));
-//});
+var plaintext ='Ovo je neki sample tekst.';
+var key = getKey('sifra123asd', '13371337');
+var iv = getIV();
+console.log('IV je: ', iv);
 
-//console.log(getIV());
-//var key = crypto.pbkdf2Sync('sifraaa', '3655654dd', 60000, 16, 'sha256');
-//var ciphertext = encrypt(key, '', 'radovane crni r');
-//console.log('Ciphertext is: ', ciphertext);
-//var plaintext = decrypt(key, '', ciphertext);
-//console.log('Plaintext is: ', plaintext.toString('utf8'));
-//var pacek = pack('', ciphertext);
-//console.log('Package is: ', pacek);
-//console.log('Unpackaged is : ', unpack(pacek, 0));
+var ciphertext = encrypt(key, iv, plaintext);
+console.log('Ciphertext je: ', ciphertext);
+
+var packed = pack(iv, ciphertext);
+console.log('Packed je: ', packed);
+
+var unpacked = unpack(packed);
+console.log('Unpacked je: ', unpacked);
+
+console.log('Plaintext je: ', decrypt(key, unpacked[0], unpacked[1]).toString('utf8'));

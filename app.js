@@ -108,13 +108,12 @@ $(document).ready(function() {
                              */                            
                             if (_msg.clientID && _msg.username && _msg.timestamp && _msg.content) {
                                 _msg.direction = 'incoming';
-                                console.dir(Buffer.isBuffer(_msg.content));
                                 if(_msg.isEncrypted == true) {
                                     if(clients.getKeyOf(_msg.clientID) == undefined) _msg.content = 'Unreadable data'
                                     else {
                                         var buff = new Buffer(_msg.content);
-                                        var buff2 = AES.unpack(buff);
-                                        _msg.content = AES.decrypt(clients.getKeyOf(_msg.clientID), '', buff2).toString('utf8');
+                                        var IVandCipher = AES.unpack(buff);
+                                        _msg.content = AES.decrypt(clients.getKeyOf(_msg.clientID), IVandCipher[0], IVandCipher[1]).toString('utf8');
                                     }
                                 }
 
@@ -168,8 +167,9 @@ $(document).ready(function() {
             var isEncrypted = false;
             if(clients.getKeyOf(clientID) == undefined) content = _msg;
             else {
-                //content = AES.pack('', AES.encrypt(clients.getKeyOf(clientID), '', _msg));
-                content = AES.encrypt(clients.getKeyOf(clientID), '', _msg);
+                var iv = AES.getIV();
+                content = AES.encrypt(clients.getKeyOf(clientID), iv, _msg);
+                content = AES.pack(iv, content);
                 isEncrypted = true;
             }
 
@@ -185,8 +185,9 @@ $(document).ready(function() {
                     if(_msg.isEncrypted == true) {
                         if(clients.getKeyOf(_msg.clientID) == undefined) _msg.content = 'Unreadable data'
                         else {
-                            _msg.content = AES.unpack(_msg.content);
-                            _msg.content = AES.decrypt(clients.getKeyOf(_msg.clientID), '', _msg.content);
+                            var buff = new Buffer(_msg.content);
+                            var IVandCipher = AES.unpack(buff);
+                            _msg.content = AES.decrypt(clients.getKeyOf(_msg.clientID), IVandCipher[0], IVandCipher[1]).toString('utf8');
                         }
                     }
                     addMsg(msgTmplCompiled, contentBox, _msg);
